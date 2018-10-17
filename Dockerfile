@@ -8,7 +8,7 @@ FROM alpine:3.8
 ############################################################
 # Configuration
 ############################################################
-ENV VERSION "2.9.1"
+ENV VERSION "2.10.0"
 ENV FILENAME=helm-v${VERSION}-linux-amd64.tar.gz
 
 ############################################################
@@ -27,6 +27,14 @@ RUN apk add --no-cache ca-certificates bash git curl tar gzip coreutils &&\
     rm -f ${FILENAME} &&\
     mv /tmp/linux-amd64/helm /bin/helm &&\
     chmod +x /usr/local/bin/docker-entrypoint.sh &&\
+    # Plugins
+	helm init --client-only &&\
+	# - Tiller Plugin for Tillerless-Helm
+    helm plugin install https://github.com/rimusz/helm-tiller &&\
+	# - Plugin to diff between the latest deployed version of a release and a helm upgrade --debug --dry-run
+	helm plugin install https://github.com/databus23/helm-diff &&\
+	# - Nukes all releases
+	helm plugin install https://github.com/adamreese/helm-nuke &&\
     # CleanUp
     apk del curl tar gzip
 
