@@ -14,7 +14,7 @@ ENV FILENAME=helm-v${VERSION}-linux-amd64.tar.gz
 ############################################################
 # Entrypoint
 ############################################################
-COPY docker-entrypoint.sh /usr/local/bin/
+COPY rootfs /
 
 ############################################################
 # Installation
@@ -26,17 +26,18 @@ RUN apk add --no-cache ca-certificates bash git curl tar gzip coreutils &&\
     tar zxv -C /tmp -f ${FILENAME} &&\
     rm -f ${FILENAME} &&\
     mv /tmp/linux-amd64/helm /bin/helm &&\
-    chmod +x /usr/local/bin/docker-entrypoint.sh &&\
     # Plugins
-	helm init --client-only &&\
-	# - Tiller Plugin for Tillerless-Helm
+    helm init --client-only &&\
+    # - Tiller Plugin for Tillerless-Helm
     helm plugin install https://github.com/rimusz/helm-tiller &&\
-	# - Plugin to diff between the latest deployed version of a release and a helm upgrade --debug --dry-run
-	helm plugin install https://github.com/databus23/helm-diff &&\
-	# - Nukes all releases
-	helm plugin install https://github.com/adamreese/helm-nuke &&\
-    # CleanUp
-    apk del curl tar gzip
+    # - Plugin to diff between the latest deployed version of a release and a helm upgrade --debug --dry-run
+    helm plugin install https://github.com/databus23/helm-diff &&\
+    # - Nukes all releases
+    helm plugin install https://github.com/adamreese/helm-nuke &&\
+    # - Keep plugins save
+    mkdir -p /helm-plguins /helm-plguins-cache &&\
+    cp -r ~/.helm/plugins/* /helm-plguins &&\
+    cp -r ~/.helm/cache/plugins/* /helm-plguins-cache
 
 ############################################################
 # Execution
