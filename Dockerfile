@@ -10,6 +10,8 @@ FROM alpine:3.8
 ############################################################
 ENV VERSION "2.12.1"
 ENV FILENAME=helm-v${VERSION}-linux-amd64.tar.gz
+ENV VERSION3 "3.0.3"
+ENV FILENAME3=helm-v${VERSION3}-linux-amd64.tar.gz
 
 ############################################################
 # Entrypoint
@@ -26,6 +28,10 @@ RUN apk add --no-cache ca-certificates bash git curl tar gzip coreutils &&\
     tar zxv -C /tmp -f ${FILENAME} &&\
     rm -f ${FILENAME} &&\
     mv /tmp/linux-amd64/helm /bin/helm &&\
+    curl -L https://get.helm.sh/${FILENAME3} > ${FILENAME3} &&\
+    tar zxv -C /tmp -f ${FILENAME3} &&\
+    rm -f ${FILENAME3} &&\
+    mv /tmp/linux-amd64/helm /bin/helm3 &&\
     # Plugins
     helm init --client-only &&\
     # - Tiller Plugin for Tillerless-Helm
